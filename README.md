@@ -13,7 +13,7 @@ Support [PostHog](https://posthog.com/) and give it a try today.
 To develop this app locally, you'll need to clone it and then run specs. Please make sure you've got Node and Yarn installed. Pull requests welcome!
 
 ```
-git clone https://github.com/PostHog/posthog-app-url-parameter-to-event-properties
+git clone https://github.com/PostHog/posthog-app-url-parameters-to-event-properties
 yarn install
 yarn test --watch
 ```

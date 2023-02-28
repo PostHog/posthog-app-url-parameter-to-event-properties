@@ -1,6 +1,6 @@
 {
-    "name": "posthog-plugin-url-parameter-to-event-properties",
-    "displayName": "URL query parameters to event properties",
+    "name": "posthog-app-url-parameters-to-event-properties",
+    "displayName": "URL parameters to event properties",
     "version": "0.0.1",
     "private": false,
     "description": "Converts URL query parameters to event properties",

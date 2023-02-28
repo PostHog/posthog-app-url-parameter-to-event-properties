@@ -1,6 +1,6 @@
 {
     "name": "URL parameters to event properties",
-    "url": "https://github.com/PostHog/posthog-app-url-parameter-to-event-properties",
+    "url": "https://github.com/PostHog/posthog-app-url-parameters-to-event-properties",
     "description": "Converts URL query parameters to event properties",
     "main": "index.ts",
     "config": [
