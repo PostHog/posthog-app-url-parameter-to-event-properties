@@ -23,7 +23,7 @@ function buildPageViewEvent($current_url: string): PluginEvent {
 }
 
 const defaultConfig: PluginConfig = {
-    whiteList: 'myUrlParameter',
+    parameters: 'myUrlParameter',
     prefix: '',
     suffix: '',
     setAsUserProperties: 'false',
@@ -40,8 +40,8 @@ function buildMockMeta(partialConfig: Partial<PluginConfig> = {}): PluginMeta<Pa
             ignoreCase: config.ignoreCase === 'true',
             setAsInitialUserProperties: config.setAsInitialUserProperties === 'true',
             setAsUserProperties: config.setAsUserProperties === 'true',
-            whiteList: new Set(
-                config.whiteList ? config.whiteList.split(',').map((parameter) => parameter.trim()) : null
+            parameters: new Set(
+                config.parameters ? config.parameters.split(',').map((parameter) => parameter.trim()) : null
             ),
         },
         config: config,
@@ -61,10 +61,10 @@ describe('ParamsToPropertiesPlugin', () => {
         it('should set one item to whitelist', () => {
             const meta = {
                 global: {
-                    whiteList: new Set(),
+                    parameters: new Set(),
                 },
                 config: {
-                    whiteList: 'one_item',
+                    parameters: 'one_item',
                     prefix: '',
                     suffix: '',
                     setAsUserProperties: 'false',
@@ -73,20 +73,20 @@ describe('ParamsToPropertiesPlugin', () => {
                 },
             } as PluginMeta<ParamsToPropertiesPlugin>
 
-            expect(meta.global.whiteList.size).toBe(0)
+            expect(meta.global.parameters.size).toBe(0)
 
             setupPlugin(meta)
 
-            expect(meta.global.whiteList.size).toBe(1)
+            expect(meta.global.parameters.size).toBe(1)
         })
 
         it('should set three item to whitelist', () => {
             const meta = {
                 global: {
-                    whiteList: new Set(),
+                    parameters: new Set(),
                 },
                 config: {
-                    whiteList: 'one_item, two_item,three_item',
+                    parameters: 'one_item, two_item,three_item',
                     prefix: '',
                     suffix: '',
                     setAsUserProperties: 'false',
@@ -95,20 +95,20 @@ describe('ParamsToPropertiesPlugin', () => {
                 },
             } as PluginMeta<ParamsToPropertiesPlugin>
 
-            expect(meta.global.whiteList.size).toBe(0)
+            expect(meta.global.parameters.size).toBe(0)
 
             setupPlugin(meta)
 
-            expect(meta.global.whiteList.size).toBe(3)
-            expect(meta.global.whiteList.has('one_item')).toBeTruthy()
-            expect(meta.global.whiteList.has('two_item')).toBeTruthy()
-            expect(meta.global.whiteList.has('three_item')).toBeTruthy()
+            expect(meta.global.parameters.size).toBe(3)
+            expect(meta.global.parameters.has('one_item')).toBeTruthy()
+            expect(meta.global.parameters.has('two_item')).toBeTruthy()
+            expect(meta.global.parameters.has('three_item')).toBeTruthy()
         })
 
         it('should clear global whitelist when config is missing whitelist', () => {
             const meta = {
                 global: {
-                    whiteList: new Set(['one_item']),
+                    parameters: new Set(['one_item']),
                 },
                 config: {
                     prefix: '',
@@ -119,11 +119,11 @@ describe('ParamsToPropertiesPlugin', () => {
                 },
             } as PluginMeta<ParamsToPropertiesPlugin>
 
-            expect(meta.global.whiteList.size).toBe(1)
+            expect(meta.global.parameters.size).toBe(1)
 
             setupPlugin(meta)
 
-            expect(meta.global.whiteList.size).toBe(0)
+            expect(meta.global.parameters.size).toBe(0)
         })
     })
 
@@ -141,7 +141,7 @@ describe('ParamsToPropertiesPlugin', () => {
                 expect(fields.has('setAsInitialUserProperties')).toBeTruthy()
                 expect(fields.has('setAsUserProperties')).toBeTruthy()
                 expect(fields.has('suffix')).toBeTruthy()
-                expect(fields.has('whiteList')).toBeTruthy()
+                expect(fields.has('parameters')).toBeTruthy()
                 expect(fields.size).toEqual(6)
             }
         })
@@ -159,7 +159,7 @@ describe('ParamsToPropertiesPlugin', () => {
                 expect(fields.get('setAsInitialUserProperties')).toEqual('choice')
                 expect(fields.get('setAsUserProperties')).toEqual('choice')
                 expect(fields.get('suffix')).toEqual('string')
-                expect(fields.get('whiteList')).toEqual('string')
+                expect(fields.get('parameters')).toEqual('string')
             }
         })
     })
@@ -210,7 +210,10 @@ describe('ParamsToPropertiesPlugin', () => {
                 expect(sourceEvent.properties['myUrlParameter']).not.toBeDefined()
 
                 const sourcePropertiesCount = Object.keys(sourceEvent?.properties).length
-                const processedEvent = processEvent(sourceEvent, buildMockMeta({ whiteList: 'plugin, myUrlParameter' }))
+                const processedEvent = processEvent(
+                    sourceEvent,
+                    buildMockMeta({ parameters: 'plugin, myUrlParameter' })
+                )
 
                 if (processedEvent.properties) {
                     expect(Object.keys(processedEvent.properties).length).toBeGreaterThan(sourcePropertiesCount)

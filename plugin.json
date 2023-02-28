@@ -5,11 +5,11 @@
     "main": "index.ts",
     "config": [
         {
-            "key": "whiteList",
+            "key": "parameters",
             "name": "URL query parameters to convert",
             "type": "string",
             "default": "",
-            "hint": "Comma separated list of URL query parameters to ignore e.g. followerId, referral_partner"
+            "hint": "Comma separated list of URL query parameters to capture. Leaving this blank will capture nothing."
         },
         {
             "key": "prefix",

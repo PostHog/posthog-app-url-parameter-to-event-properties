@@ -13,7 +13,7 @@ Support [PostHog](https://posthog.com/) and give it a try today.
 To develop this plugin locally, you'll need to clone it and then run specs. Please make sure you've got Node and Yarn installed. Pull requests welcome!
 
 ```
-git clone https://github.com/everald/posthog-plugin-url-parameter-to-event-properties
+git clone https://github.com/PostHog/posthog-plugin-url-parameter-to-event-properties
 yarn install
 yarn test --watch
 ```
@@ -38,3 +38,5 @@ Contributions of code, issues, reviews and documentation are welcome!
 ## Acknoledgements
 
 Thanks to the awesome @posthog community!
+
+Thanks to @everald for the initial app!

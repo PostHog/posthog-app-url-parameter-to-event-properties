@@ -7,7 +7,7 @@ export type PluginConfig = {
     setAsInitialUserProperties: 'true' | 'false'
     setAsUserProperties: 'true' | 'false'
     suffix: string
-    whiteList: string
+    parameters: string
 }
 
 export type ParamsToPropertiesPlugin = Plugin<{
@@ -15,7 +15,7 @@ export type ParamsToPropertiesPlugin = Plugin<{
         ignoreCase: boolean
         setAsInitialUserProperties: boolean
         setAsUserProperties: boolean
-        whiteList: Set<string>
+        parameters: Set<string>
     }
     config: PluginConfig
 }>
@@ -30,8 +30,8 @@ export const setupPlugin = (meta: PluginMeta<ParamsToPropertiesPlugin>): void =>
     global.ignoreCase = config.ignoreCase === 'true'
     global.setAsInitialUserProperties = config.setAsInitialUserProperties === 'true'
     global.setAsUserProperties = config.setAsUserProperties === 'true'
-    global.whiteList = new Set(
-        config.whiteList ? config.whiteList.split(',').map((parameter) => parameter.trim()) : null
+    global.parameters = new Set(
+        config.parameters ? config.parameters.split(',').map((parameter) => parameter.trim()) : null
     )
 }
 
@@ -42,7 +42,7 @@ export const processEvent = (event: PluginEvent, meta: PluginMeta<ParamsToProper
             ? convertSearchParams(new URLSearchParams(url.searchParams))
             : new URLSearchParams(url.searchParams)
 
-        for (const name of meta.global.whiteList) {
+        for (const name of meta.global.parameters) {
             const value = params.get(meta.global.ignoreCase ? name.toLowerCase() : name)
             if (value) {
                 const key = `${meta.config.prefix}${name}${meta.config.suffix}`
