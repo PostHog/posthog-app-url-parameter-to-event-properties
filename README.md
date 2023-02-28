@@ -1,4 +1,4 @@
-# posthog-app-url-parameter-to-event-properties
+# URL parameters to event properties
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-red.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 
