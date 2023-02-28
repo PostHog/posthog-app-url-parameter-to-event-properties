@@ -1,19 +1,19 @@
-# posthog-plugin-url-parameter-to-event-properties
+# posthog-app-url-parameter-to-event-properties
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-red.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 
-A PostHog plugin to convert specific url search/query parameters to event properties allowing you to more easily compare them in insights.
+A PostHog app to convert specific url search/query parameters to event properties allowing you to more easily compare them in insights.
 
-By default, this converts no parameter at all. By white listing parameters the plugin will look for those and convert to properties
+By default, this converts no parameter at all. By white listing parameters the app will look for those and convert to properties
 
 Support [PostHog](https://posthog.com/) and give it a try today.
 
 ## Developing Locally
 
-To develop this plugin locally, you'll need to clone it and then run specs. Please make sure you've got Node and Yarn installed. Pull requests welcome!
+To develop this app locally, you'll need to clone it and then run specs. Please make sure you've got Node and Yarn installed. Pull requests welcome!
 
 ```
-git clone https://github.com/PostHog/posthog-plugin-url-parameter-to-event-properties
+git clone https://github.com/PostHog/posthog-app-url-parameter-to-event-properties
 yarn install
 yarn test --watch
 ```
@@ -29,7 +29,7 @@ From there, edit away and enjoy!
 
 ## Roadmap
 
-This plugin is early stage, but please consider starting a discussion or leaving an issue if there are features you'd like to see added.
+This app is early stage, but please consider starting a discussion or leaving an issue if there are features you'd like to see added.
 
 ## Contributing
 
