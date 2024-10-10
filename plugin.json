@@ -48,6 +48,14 @@
             "choices": ["true", "false"],
             "default": "false",
             "hint": "Additionally adds the property to the user initial properties. This will add a prefix of 'initial_' before the already fully composed property e.g. initial_prefix_followerId_suffix"
+        },
+        {
+            "key": "alwaysJson",
+            "name": "Always JSON stringify the property data",
+            "type": "choice",
+            "choices": ["true", "false"],
+            "default": "false",
+            "hint": "If set, always store the resulting data as a JSON array. (Otherwise, single parameters get stored as-is, and multi-value parameters get stored as a JSON array.)"
         }
     ]
 }

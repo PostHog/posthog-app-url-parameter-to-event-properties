@@ -29,6 +29,7 @@ const defaultConfig: PluginConfig = {
     setAsUserProperties: 'false',
     setAsInitialUserProperties: 'false',
     ignoreCase: 'false',
+    alwaysJson: 'false',
 }
 
 const pluginJSON = require('./plugin.json')
@@ -40,6 +41,7 @@ function buildMockMeta(partialConfig: Partial<PluginConfig> = {}): PluginMeta<Pa
             ignoreCase: config.ignoreCase === 'true',
             setAsInitialUserProperties: config.setAsInitialUserProperties === 'true',
             setAsUserProperties: config.setAsUserProperties === 'true',
+            alwaysJson: config.alwaysJson === 'true',
             parameters: new Set(
                 config.parameters ? config.parameters.split(',').map((parameter) => parameter.trim()) : null
             ),
@@ -70,6 +72,7 @@ describe('ParamsToPropertiesPlugin', () => {
                     setAsUserProperties: 'false',
                     setAsInitialUserProperties: 'false',
                     ignoreCase: 'false',
+                    alwaysJson: 'false',
                 },
             } as PluginMeta<ParamsToPropertiesPlugin>
 
@@ -92,6 +95,7 @@ describe('ParamsToPropertiesPlugin', () => {
                     setAsUserProperties: 'false',
                     setAsInitialUserProperties: 'false',
                     ignoreCase: 'false',
+                    alwaysJson: 'false',
                 },
             } as PluginMeta<ParamsToPropertiesPlugin>
 
@@ -116,6 +120,7 @@ describe('ParamsToPropertiesPlugin', () => {
                     setAsUserProperties: 'false',
                     setAsInitialUserProperties: 'false',
                     ignoreCase: 'false',
+                    alwaysJson: 'false',
                 },
             } as PluginMeta<ParamsToPropertiesPlugin>
 
@@ -142,7 +147,8 @@ describe('ParamsToPropertiesPlugin', () => {
                 expect(fields.has('setAsUserProperties')).toBeTruthy()
                 expect(fields.has('suffix')).toBeTruthy()
                 expect(fields.has('parameters')).toBeTruthy()
-                expect(fields.size).toEqual(6)
+                expect(fields.has('alwaysJson')).toBeTruthy()
+                expect(fields.size).toEqual(7)
             }
         })
 
@@ -160,6 +166,7 @@ describe('ParamsToPropertiesPlugin', () => {
                 expect(fields.get('setAsUserProperties')).toEqual('choice')
                 expect(fields.get('suffix')).toEqual('string')
                 expect(fields.get('parameters')).toEqual('string')
+                expect(fields.get('alwaysJson')).toEqual('choice')
             }
         })
     })
@@ -186,6 +193,7 @@ describe('ParamsToPropertiesPlugin', () => {
 
             if (sourceEvent.properties) {
                 expect(sourceEvent.properties['myUrlParameter']).not.toBeDefined()
+                expect(mockMeta.global.alwaysJson).toBeFalsy()
 
                 const sourcePropertiesCount = Object.keys(sourceEvent?.properties).length
                 const processedEvent = processEvent(sourceEvent, mockMeta)
@@ -505,5 +513,171 @@ describe('ParamsToPropertiesPlugin', () => {
                 expect(sourceEvent.properties).toBeDefined()
             }
         })
+        ;[
+            {
+                label: '',
+                ignoreCase: 'false',
+                prefix: '',
+                suffix: '',
+                setAsUserProperties: '',
+                setAsInitialUserProperties: '',
+            },
+            {
+                label: 'ignoring case',
+                ignoreCase: 'true',
+                prefix: '',
+                suffix: '',
+                setAsUserProperties: '',
+                setAsInitialUserProperties: '',
+            },
+            {
+                label: 'with a prefix',
+                ignoreCase: 'false',
+                prefix: 'prefix_',
+                suffix: '',
+                setAsUserProperties: '',
+                setAsInitialUserProperties: '',
+            },
+            {
+                label: 'with a suffix',
+                ignoreCase: 'false',
+                prefix: '',
+                suffix: '_suffix',
+                setAsUserProperties: '',
+                setAsInitialUserProperties: '',
+            },
+            {
+                label: 'with a prefix and a suffix',
+                ignoreCase: 'false',
+                prefix: 'prefix_',
+                suffix: '_suffix',
+                setAsUserProperties: '',
+                setAsInitialUserProperties: '',
+            },
+            {
+                label: 'with a $set property',
+                ignoreCase: 'false',
+                prefix: '',
+                suffix: '',
+                setAsUserProperties: 'true',
+                setAsInitialUserProperties: '',
+            },
+            {
+                label: 'with a $set_once property',
+                ignoreCase: 'false',
+                prefix: '',
+                suffix: '',
+                setAsUserProperties: '',
+                setAsInitialUserProperties: 'true',
+            },
+            {
+                label: 'with a $set and a $set_once property',
+                ignoreCase: 'false',
+                prefix: '',
+                suffix: '',
+                setAsUserProperties: 'true',
+                setAsInitialUserProperties: 'true',
+            },
+            {
+                label: 'with a prefix, a suffix, a $set, and a $set_once property',
+                ignoreCase: 'false',
+                prefix: 'preefix_',
+                suffix: '_suffax',
+                setAsUserProperties: 'true',
+                setAsInitialUserProperties: 'true',
+            },
+        ].forEach((testOptions) => {
+            it(`should add 1 multivalue property ${testOptions['label']}`, () => {
+                const testParameterBase = 'multiValueParam'
+                const testMockMeta = buildMockMeta({
+                    ignoreCase: testOptions['ignoreCase'] === 'true' ? 'true' : 'false',
+                    prefix: testOptions['prefix'],
+                    suffix: testOptions['suffix'],
+                    setAsUserProperties: testOptions['setAsUserProperties'] === 'true' ? 'true' : 'false',
+                    setAsInitialUserProperties: testOptions['setAsInitialUserProperties'] === 'true' ? 'true' : 'false',
+                    parameters: testParameterBase,
+                })
+                const testData = JSON.stringify(['1', '2'])
+
+                let testParameter = testParameterBase
+
+                if (testOptions['prefix'].length > 0) {
+                    testParameter = `${testOptions['prefix']}${testParameter}`
+                }
+
+                if (testOptions['suffix'].length > 0) {
+                    testParameter = `${testParameter}${testOptions['suffix']}`
+                }
+
+                const eventParameter =
+                    testOptions['ignoreCase'] === 'true' ? testParameterBase.toUpperCase() : testParameterBase
+                const sourceEvent = buildPageViewEvent(
+                    `https://posthog.com/test?plugin=1&${eventParameter}=1&${eventParameter}=2`
+                )
+
+                if (sourceEvent.properties) {
+                    expect(sourceEvent.properties[testParameter]).not.toBeDefined()
+
+                    const sourcePropertiesCount = Object.keys(sourceEvent?.properties).length
+                    const addlPropsCount =
+                        1 +
+                        (testOptions['setAsUserProperties'] === 'true' ? 1 : 0) +
+                        (testOptions['setAsInitialUserProperties'] === 'true' ? 1 : 0)
+                    const processedEvent = processEvent(sourceEvent, testMockMeta)
+
+                    if (processedEvent.properties) {
+                        // the setAs options are additive
+
+                        if (testOptions['setAsUserProperties'] === 'true') {
+                            expect(Object.keys(processedEvent.properties.$set)).toBeDefined()
+                            expect(Object.keys(processedEvent.properties.$set).length).toEqual(1)
+                            expect(processedEvent.properties.$set[testParameter]).toBeDefined()
+                            expect(processedEvent.properties.$set[testParameter]).toEqual(testData)
+                        }
+
+                        if (testOptions['setAsInitialUserProperties'] === 'true') {
+                            expect(Object.keys(processedEvent.properties.$set_once)).toBeDefined()
+                            expect(Object.keys(processedEvent.properties.$set_once).length).toEqual(1)
+                            expect(processedEvent.properties.$set_once[`initial_${testParameter}`]).toBeDefined()
+                            expect(processedEvent.properties.$set_once[`initial_${testParameter}`]).toEqual(testData)
+                        }
+
+                        expect(Object.keys(processedEvent.properties).length).toBeGreaterThan(sourcePropertiesCount)
+                        expect(Object.keys(processedEvent.properties).length).toEqual(
+                            sourcePropertiesCount + addlPropsCount
+                        )
+                        expect(processedEvent.properties[testParameter]).toBeDefined()
+                        expect(processedEvent.properties[testParameter]).toEqual(testData)
+                    } else {
+                        expect(processedEvent.properties).toBeDefined()
+                    }
+                } else {
+                    expect(sourceEvent.properties).toBeDefined()
+                }
+            })
+        })
     })
+
+    it('should add 1 property stored as JSON when alwaysJson = true', () => {
+        const sourceEvent = buildPageViewEvent('https://posthog.com/test?plugin=1&myUrlParameter=1')
+
+        if (sourceEvent.properties) {
+            expect(sourceEvent.properties['myUrlParameter']).not.toBeDefined()
+
+            const sourcePropertiesCount = Object.keys(sourceEvent?.properties).length
+            const processedEvent = processEvent(sourceEvent, buildMockMeta({ alwaysJson: 'true' }))
+
+            if (processedEvent.properties) {
+                expect(Object.keys(processedEvent.properties).length).toBeGreaterThan(sourcePropertiesCount)
+                expect(Object.keys(processedEvent.properties).length).toEqual(sourcePropertiesCount + 1)
+                expect(processedEvent.properties['myUrlParameter']).toBeDefined()
+                expect(processedEvent.properties.myUrlParameter).toEqual(JSON.stringify(['1']))
+            } else {
+                expect(processedEvent.properties).toBeDefined()
+            }
+        } else {
+            expect(sourceEvent.properties).toBeDefined()
+        }
+    })
+
 })

@@ -8,6 +8,7 @@ export type PluginConfig = {
     setAsUserProperties: 'true' | 'false'
     suffix: string
     parameters: string
+    alwaysJson: 'true' | 'false'
 }
 
 export type ParamsToPropertiesPlugin = Plugin<{
@@ -15,6 +16,7 @@ export type ParamsToPropertiesPlugin = Plugin<{
         ignoreCase: boolean
         setAsInitialUserProperties: boolean
         setAsUserProperties: boolean
+        alwaysJson: boolean
         parameters: Set<string>
     }
     config: PluginConfig
@@ -30,6 +32,7 @@ export const setupPlugin = (meta: PluginMeta<ParamsToPropertiesPlugin>): void =>
     global.ignoreCase = config.ignoreCase === 'true'
     global.setAsInitialUserProperties = config.setAsInitialUserProperties === 'true'
     global.setAsUserProperties = config.setAsUserProperties === 'true'
+    global.alwaysJson = config.alwaysJson === 'true'
     global.parameters = new Set(
         config.parameters ? config.parameters.split(',').map((parameter) => parameter.trim()) : null
     )
@@ -43,19 +46,34 @@ export const processEvent = (event: PluginEvent, meta: PluginMeta<ParamsToProper
             : new URLSearchParams(url.searchParams)
 
         for (const name of meta.global.parameters) {
-            const value = params.get(meta.global.ignoreCase ? name.toLowerCase() : name)
-            if (value) {
+            let value: string | Array<string> = ''
+
+            if (meta.global.ignoreCase) {
+                for (const key of params.keys()) {
+                    if (key.toLowerCase() === name.toLowerCase()) {
+                        value = params.getAll(key)
+                    }
+                }
+            } else {
+                value = params.getAll(name)
+            }
+
+            if (value.length > 0) {
                 const key = `${meta.config.prefix}${name}${meta.config.suffix}`
 
-                event.properties[key] = value
+                // if we've only got one, then just store the first string as a string
+                // unless we want them all JSON-ified
+                const storeValue = value.length === 1 && !meta.global.alwaysJson ? value[0] : JSON.stringify(value)
+
+                event.properties[key] = storeValue
                 if (meta.global.setAsUserProperties) {
                     event.properties.$set = event.properties.$set || {}
-                    event.properties.$set[key] = value
+                    event.properties.$set[key] = storeValue
                 }
 
                 if (meta.global.setAsInitialUserProperties) {
                     event.properties.$set_once = event.properties.$set_once || {}
-                    event.properties.$set_once[`initial_${key}`] = value
+                    event.properties.$set_once[`initial_${key}`] = storeValue
                 }
             }
         }
