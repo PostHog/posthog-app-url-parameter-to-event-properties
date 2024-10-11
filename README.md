@@ -4,7 +4,9 @@
 
 A PostHog app to convert specific url search/query parameters to event properties allowing you to more easily compare them in insights.
 
-By default, this converts no parameter at all. By white listing parameters the app will look for those and convert to properties
+You can specify a list of parameters to convert. Converted parameters are stored as event properties, but you can configure the plugin to set them as (initial) user properties as well. Properties are created using the parameter name and an optional prefix and suffix. (Initial user properties also get `initial_` prepended to the property name.)
+
+If a configured parameter is found one time, it will store the data as-is. If the parameter is found more than once, it will gather all the values found into an array, and store that in the property in JSON format. Or, you can set it to always store the data as a JSON array.
 
 Support [PostHog](https://posthog.com/) and give it a try today.
 
